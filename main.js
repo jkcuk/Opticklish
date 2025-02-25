@@ -1,13 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-// import GUI from 'lil-gui';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
 
 
 // parameters
 var omega = 2*2*Math.PI/1000;
-var color = new THREE.Color(16, 16, 16);
+var color = { r: 1, g: 1, b: 1 };
 var movementType = 1;   // rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
 var movementAmount = 1;
 
@@ -35,7 +34,8 @@ let controls = new OrbitControls( camera, renderer.domElement );
 // add the scene objects
 
 // I can't work out how to use the MeshBasicMaterial
-var material = new THREE.MeshLambertMaterial({
+var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+new THREE.MeshLambertMaterial({
     color: 0xf0f0f0,
     // ambient: 0x121212,
     emissive: 0xf121212
@@ -106,15 +106,19 @@ var render = function () {
 
     renderer.clear();
 
-    cylinders.material.color.set( color.clone().multiplyScalar(0.5 + 0.5*Math.cos(omegaT + phaseChangeForward)));
+    let f;
+    f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
+    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
     cylinders.matrix.copy(matrix1);
     renderer.render(scene, camera);
 
-    cylinders.material.color.set( color.clone().multiplyScalar(0.5 + 0.5*Math.cos(omegaT - phaseChangeForward)));
+    f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
+    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
     cylinders.matrix.copy(matrix3);
     renderer.render(scene, camera);
 
-    cylinders.material.color.set( color.clone().multiplyScalar(0.5 + 0.5*Math.cos(omegaT)));
+    f = 0.5 + 0.5*Math.cos(omegaT);
+    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
     cylinders.matrix.copy(matrix2);
     renderer.render(scene, camera);
 
