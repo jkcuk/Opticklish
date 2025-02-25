@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import GUI from 'lil-gui';
+// import GUI from 'lil-gui';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
 
 
