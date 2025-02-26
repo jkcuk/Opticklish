@@ -8,7 +8,7 @@ import { edgesToCylinders } from './util.js';
 var omega = 2*2*Math.PI/1000;
 var color = { r: 1, g: 1, b: 1 };
 var movementType = 1;   // rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
-var movementAmount = 1;
+var movementSpeed = 1;
 
 // Create scene
 var scene = new THREE.Scene();
@@ -61,25 +61,25 @@ function reCalculateMatrices() {
     var forwardMatrix = new THREE.Matrix4();
     switch( movementType ) {
         case 0: // rotationX
-        forwardMatrix.makeRotationX( movementAmount*deltaAngleMax );
+        forwardMatrix.makeRotationX( movementSpeed*deltaAngleMax );
         break;
         case 1: // rotationY
-        forwardMatrix.makeRotationY( movementAmount*deltaAngleMax );
+        forwardMatrix.makeRotationY( movementSpeed*deltaAngleMax );
         break;
         case 2: // rotationZ
-        forwardMatrix.makeRotationZ( movementAmount*deltaAngleMax );
+        forwardMatrix.makeRotationZ( movementSpeed*deltaAngleMax );
         break;
         case 3: // translationX
-        forwardMatrix.makeTranslation(movementAmount*deltaShiftMax, 0, 0);
+        forwardMatrix.makeTranslation(movementSpeed*deltaShiftMax, 0, 0);
         break;
         case 4: // translationY
-        forwardMatrix.makeTranslation(0, movementAmount*deltaShiftMax, 0);
+        forwardMatrix.makeTranslation(0, movementSpeed*deltaShiftMax, 0);
         break;
         case 5: // translationZ
-        forwardMatrix.makeTranslation(0, 0, movementAmount*deltaShiftMax);
+        forwardMatrix.makeTranslation(0, 0, movementSpeed*deltaShiftMax);
         break;
         case 6: // scaling
-        let scale = 1 + movementAmount*deltaScaleMax;
+        let scale = 1 + movementSpeed*deltaScaleMax;
         forwardMatrix.makeScale(scale, scale, scale);
         break;
     }
@@ -132,27 +132,28 @@ requestAnimationFrame( render );
 const guiVariables = {
 	frequency: omega*1000/2/Math.PI,
 	movementType: movementType,
-    movementAmount: movementAmount,
+    movementSpeed: movementSpeed,
 };
 	
 const gui = new GUI();
 
 gui.add( guiVariables, 'frequency', 1, 4 )
-	.name( 'frequency' )
+	.name( 'frequency (Hz)' )
 	.onChange( f => { 
         omega = 2*Math.PI*f/1000; 
 } );
 
-gui.add( guiVariables, 'movementType', { rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6 } )
-	.onChange( t => {
+gui.add( guiVariables, 'movementType', { 'x rotation': 0, 'y rotation': 1, 'z rotation': 2, 'x translation': 3, 'y translation': 4, 'z translation': 5, scaling: 6 } )
+	.name( 'movement' )
+    .onChange( t => {
 	    movementType = t;
 	    reCalculateMatrices();
 } );
 
-gui.add( guiVariables, 'movementAmount', -1, 1 )
-	.name( 'movement amount' )
+gui.add( guiVariables, 'movementSpeed', -1, 1 )
+	.name( 'relative speed' )
 	.onChange( a => { 
-        movementAmount = a;
+        movementSpeed = a;
         reCalculateMatrices();
 } );
 
