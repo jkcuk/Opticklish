@@ -81,3 +81,5 @@ class RainbowMaterial extends THREE.ShaderMaterial {
     }
 
 }
+
+export { RainbowMaterial };
