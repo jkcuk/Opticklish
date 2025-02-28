@@ -29,8 +29,8 @@ class RainbowMaterial extends THREE.ShaderMaterial {
 
                 varying vec3 v_position;
 
-                uniform vec3 sourcePositions[10];
-                uniform vec2 sourceAmplitudes[10];
+                uniform vec3 sourcePositions[1];
+                uniform vec2 sourceAmplitudes[1];
                 uniform int noOfSources;
                 uniform float k;
                 uniform float omegaT;
@@ -43,7 +43,7 @@ class RainbowMaterial extends THREE.ShaderMaterial {
                 }
 
                 float calculatePhase(vec2 amplitude) {
-                    return atan(amplitude.y, amplitude.x);	//  mod(atan(amplitude.y, amplitude.x) + omegaT, 2.0*pi);	// -pi .. pi
+                    return atan(amplitude.y, amplitude.x);	// -pi .. pi
                 }
 
                 float calculateHue(vec2 amplitude) {
