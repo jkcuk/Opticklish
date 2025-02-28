@@ -5,8 +5,8 @@ class RainbowMaterial extends THREE.ShaderMaterial {
         super( {
             side: THREE.DoubleSide,
             uniforms: { 
-                sourcePositions: { value: [ THREE.Vector3(0, 0, 0) ] },
-                sourceAmplitudes: { value: [ THREE.Vector2(1, 0) ] },
+                sourcePositions: { value: [ new THREE.Vector3(0, 0, 0) ] },
+                sourceAmplitudes: { value: [ new THREE.Vector2(1, 0) ] },
                 noOfSources: { value: 1 },
                 k: { value: k },	// lambda = 0.1
                 omegaT: { value: omegaT },
