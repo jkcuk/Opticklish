@@ -50,10 +50,6 @@ class RainbowMaterial extends THREE.ShaderMaterial {
                     return 0.5 + 0.5*calculatePhase(amplitude)/M_PI;	// 0 .. 1
                 }
 
-                float calculateIntensity(vec2 amplitude) {
-                    return dot(amplitude, amplitude)/maxIntensity;
-                }
-
                 void main() {
                     // this is where the sum of the amplitudes of all individual sources goes
                     vec2 amplitude = vec2(0, 0);
