@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
+import { RainbowMaterial } from './rainbowMaterial.js';
 
 
 // parameters
@@ -34,12 +35,14 @@ let controls = new OrbitControls( camera, renderer.domElement );
 // add the scene objects
 
 // I can't work out how to use the MeshBasicMaterial
-var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-new THREE.MeshLambertMaterial({
-    color: 0xf0f0f0,
-    // ambient: 0x121212,
-    emissive: 0xf121212
- });
+var material = 
+    // new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    new RainbowMaterial( 2*Math.PI, omega*Date.now() );
+    // new THREE.MeshLambertMaterial({
+    //     color: 0xf0f0f0,
+    //     // ambient: 0x121212,
+    //     emissive: 0xf121212
+    // });
 
 var thickness = 0.015; // radius of the cylinders
   
@@ -106,19 +109,22 @@ var render = function () {
 
     renderer.clear();
 
-    let f;
-    f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
-    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    // let f;
+    // f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
+    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    cylinders.material.updateOmegaT( omegaT + phaseChangeForward );
     cylinders.matrix.copy(matrix1);
     renderer.render(scene, camera);
 
-    f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
-    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    // f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
+    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    cylinders.material.updateOmegaT( omegaT - phaseChangeForward );
     cylinders.matrix.copy(matrix3);
     renderer.render(scene, camera);
 
-    f = 0.5 + 0.5*Math.cos(omegaT);
-    cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    // f = 0.5 + 0.5*Math.cos(omegaT);
+    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
+    cylinders.material.updateOmegaT( omegaT );
     cylinders.matrix.copy(matrix2);
     renderer.render(scene, camera);
 
