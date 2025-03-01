@@ -8,15 +8,36 @@ import { RainbowMaterial } from './rainbowMaterial.js';
 // parameters
 var omega = 2*2*Math.PI/1000;
 var color = { r: 1, g: 1, b: 1 };
+
+/**
+ * rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
+ */
 var movementType = 1;   // rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
 var movementSpeed = 1;
 
+/**
+ * faces: 0, edges: 1
+ */
+var meshType = 1;   // faces: 0, edges: 1
+
+/**
+ * 0: single color, 1: rainbow
+ */
+var colorType = 0;  // 0: single color, 1: rainbow 
+
+/**
+ * 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
+ */
+var geometryType = 0;   // 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
+
 // Create scene
 var scene = new THREE.Scene();
-scene.background = new THREE.Color( 0x0000ff );
+scene.background = 
+    new THREE.Color( 0x888888 );
+    // new THREE.Color( 0x0000ff );
 
 // Create camera
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
 
 // Create lights
@@ -34,25 +55,55 @@ let controls = new OrbitControls( camera, renderer.domElement );
 
 // add the scene objects
 
-// I can't work out how to use the MeshBasicMaterial
-var material = 
-    // new THREE.MeshBasicMaterial( { color: 0xffffff } );
-    new RainbowMaterial( 2*Math.PI, omega*Date.now() );
+var material;
+function reDefineMaterial() {
+    switch(colorType) {
+        case 0:
+            material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+            break;
+        case 1:
+            material = new RainbowMaterial( 1, 1*2*Math.PI, .1 );
+            break;
+    }
     // new THREE.MeshLambertMaterial({
     //     color: 0xf0f0f0,
     //     // ambient: 0x121212,
     //     emissive: 0xf121212
     // });
+}
+reDefineMaterial();
 
-var thickness = 0.015; // radius of the cylinders
-  
-var geometry = new THREE.TorusKnotGeometry( 1.5, 0.5, 200, 16 );
-// var dodecahedronGeom = new THREE.DodecahedronGeometry(1);
-const cylinders = new THREE.Mesh(
-    edgesToCylinders( new THREE.EdgesGeometry(geometry), thickness ),
-    material
-);
-scene.add(cylinders);
+var mesh = new THREE.Mesh( new THREE.TorusGeometry(), material );
+function reDefineMesh() {
+    var thickness = 0.01; // radius of the cylinders
+    
+    var geometry;
+    switch(geometryType) {
+        case 0:
+            geometry = new THREE.TorusKnotGeometry( 0.7, 0.2, 200, 16 );
+            break;
+        case 1:
+            geometry = new THREE.DodecahedronGeometry(1);
+            break;
+        case 2:
+            geometry = new THREE.SphereGeometry(1, 32, 32);
+            break;
+        case 3:
+            geometry = new THREE.BoxGeometry(1, 1, 1);
+            break;  
+    }
+
+    switch(meshType) {
+        case 0:
+            mesh.geometry = geometry;
+            break;
+        case 1:
+            mesh.geometry = edgesToCylinders( new THREE.EdgesGeometry(geometry), thickness );
+            break;
+    }
+}
+reDefineMesh();
+scene.add(mesh);
 
 // calculate the matrices
 
@@ -88,17 +139,17 @@ function reCalculateMatrices() {
     }
 
     var backwardMatrix = forwardMatrix.clone().invert();
-    matrix2 = cylinders.matrix.clone();
+    matrix2 = mesh.matrix.clone();
     matrix1 = (new THREE.Matrix4()).multiplyMatrices(matrix2, forwardMatrix);
     matrix3 = (new THREE.Matrix4()).multiplyMatrices(matrix2, backwardMatrix);
 }
-cylinders.matrixAutoUpdate = false;
+mesh.matrixAutoUpdate = false;
 reCalculateMatrices();
 
 // Rendering function
 
-var lastDrawn = 0;
-var omegaT = 0;
+var lastDrawn = Date.now();
+var omegaT = 0.1;
 var phaseChangeForward = -0.2*2*Math.PI;
 
 var render = function () {
@@ -109,23 +160,41 @@ var render = function () {
 
     renderer.clear();
 
-    // let f;
-    // f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
-    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
-    cylinders.material.updateOmegaT( omegaT + phaseChangeForward );
-    cylinders.matrix.copy(matrix1);
+    let f;
+    switch(colorType) {
+        case 0:
+            f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
+            material.color.setRGB( color.r*f, color.g*f, color.b*f );
+            break;
+        case 1:
+            material.uniforms.omegaT.value = omegaT + phaseChangeForward;
+            break;
+        }
+    mesh.matrix.copy(matrix1);
     renderer.render(scene, camera);
 
-    // f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
-    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
-    cylinders.material.updateOmegaT( omegaT - phaseChangeForward );
-    cylinders.matrix.copy(matrix3);
+    switch(colorType) {
+        case 0:
+            f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
+            material.color.setRGB( color.r*f, color.g*f, color.b*f );
+            break;
+        case 1:
+            material.uniforms.omegaT.value = omegaT - phaseChangeForward;
+            break;
+    }
+    mesh.matrix.copy(matrix3);
     renderer.render(scene, camera);
 
-    // f = 0.5 + 0.5*Math.cos(omegaT);
-    // cylinders.material.color.setRGB( color.r*f, color.g*f, color.b*f );
-    cylinders.material.updateOmegaT( omegaT );
-    cylinders.matrix.copy(matrix2);
+    switch(colorType) {
+        case 0:
+            f = 0.5 + 0.5*Math.cos(omegaT);
+            material.color.setRGB( color.r*f, color.g*f, color.b*f );
+            break;
+        case 1:
+            material.uniforms.omegaT.value = omegaT;
+            break;
+    }
+    mesh.matrix.copy(matrix2);
     renderer.render(scene, camera);
 
     requestAnimationFrame( render );
@@ -139,11 +208,14 @@ const guiVariables = {
 	frequency: omega*1000/2/Math.PI,
 	movementType: movementType,
     movementSpeed: movementSpeed,
+    meshType: meshType,   // faces: 0, edges: 1
+    colorType: colorType,  // 1: rainbow, 0: single color
+    geometryType: geometryType, // 0: torusKnot, 1: dodecahedron
 };
 	
 const gui = new GUI();
 
-gui.add( guiVariables, 'frequency', 1, 4 )
+gui.add( guiVariables, 'frequency', -4, 4 )
 	.name( 'frequency (Hz)' )
 	.onChange( f => { 
         omega = 2*Math.PI*f/1000; 
@@ -162,6 +234,29 @@ gui.add( guiVariables, 'movementSpeed', -1, 1 )
         movementSpeed = a;
         reCalculateMatrices();
 } );
+
+gui.add( guiVariables, 'meshType', { 'faces': 0, 'edges': 1 } )
+	.name( 'show' )
+    .onChange( t => {
+	    meshType = t;
+        reDefineMesh();
+} );
+
+gui.add( guiVariables, 'colorType', { 'single color': 0, 'rainbow': 1 } )
+	.name( 'colors' )
+    .onChange( t => {
+	    colorType = t;
+        reDefineMaterial();
+        mesh.material = material;
+} );
+
+gui.add( guiVariables, 'geometryType', { 'torus knot': 0, 'dodecahedron': 1, 'sphere': 2, 'cube': 3 } )
+    .name( 'geometry' )
+    .onChange( t => {
+        geometryType = t;
+        reDefineMesh();
+} );
+
 
 // window resizing
 
