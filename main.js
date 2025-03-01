@@ -149,7 +149,7 @@ reCalculateMatrices();
 // Rendering function
 
 var lastDrawn = Date.now();
-var omegaT = 0.1;
+var omegaT = 0;
 var phaseChangeForward = -0.2*2*Math.PI;
 
 var render = function () {
