@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 
 class RainbowMaterial extends THREE.ShaderMaterial {
-    constructor( k, omegaT ) {
+    constructor( noOfSources, k, omegaT ) {
         super( {
             side: THREE.DoubleSide,
             uniforms: { 
-                sourcePositions: { value: [ new THREE.Vector3(0, 0, 0) ] },
-                sourceAmplitudes: { value: [ new THREE.Vector2(1, 0) ] },
-                noOfSources: { value: 1 },
+                sourcePositions: { value: RainbowMaterial.createSourcePositions( noOfSources ) },
+                sourceAmplitudes: { value: RainbowMaterial.createSourceAmplitudes( noOfSources ) },
+                noOfSources: { value: noOfSources },
                 k: { value: k },	// lambda = 0.1
                 omegaT: { value: omegaT },
             },
@@ -29,8 +29,8 @@ class RainbowMaterial extends THREE.ShaderMaterial {
 
                 varying vec3 v_position;
 
-                uniform vec3 sourcePositions[1];
-                uniform vec2 sourceAmplitudes[1];
+                uniform vec3 sourcePositions[10];
+                uniform vec2 sourceAmplitudes[10];
                 uniform int noOfSources;
                 uniform float k;
                 uniform float omegaT;
@@ -67,9 +67,49 @@ class RainbowMaterial extends THREE.ShaderMaterial {
 
                     // plot the phase only
                     gl_FragColor = vec4(hsv2rgb(vec3(calculateHue(amplitude), 1.0, 1.0)), 1.0);
+                    // gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
                 }
             `
         } );
+    }
+
+    static createSourcePositions( noOfSources) {
+
+        // create an array of sources
+        let sourcePositions = [];
+
+        // fill in the elements of all three arrays
+        // noOfSources = 100;	// no of elements
+        let i=0;
+        let m=0;
+        for(; i<noOfSources; i++) {
+            let phi = 2.0*Math.PI*i/noOfSources;	// takes values between 0 and 2 pi
+            sourcePositions.push(new THREE.Vector3(0.5*Math.cos(phi), 0.5*Math.sin(phi), 0));
+        }
+        for(; i<10; i++) {
+            sourcePositions.push(new THREE.Vector3(0, 0, 0));
+        }
+
+        return sourcePositions;
+    }
+
+    static createSourceAmplitudes( noOfSources) {
+
+        let sourceAmplitudes = [];	// (complex) amplitudes
+
+        // fill in the elements of all three arrays
+        // noOfSources = 100;	// no of elements
+        let i=0;
+        let m=0;
+        for(; i<noOfSources; i++) {
+            let phi = 2.0*Math.PI*i/noOfSources;	// azimuthal angle
+            sourceAmplitudes.push(new THREE.Vector2(Math.cos(m*phi), Math.sin(m*phi)));
+        }
+        for(; i<10; i++) {
+            sourceAmplitudes.push(new THREE.Vector2(1, 0));
+        }
+
+        return sourceAmplitudes;
     }
 
     updateOmegaT( omegaT ) {
