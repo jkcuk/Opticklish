@@ -73,30 +73,30 @@ class JApp {
 			false);
 
 		// share button functionality
-		document.getElementById('takePhotoButton').addEventListener('click', JApp.bind( this, "takePhoto") );
+		document.getElementById('takePhotoButton').addEventListener('click', takePhoto);	// JApp.bind( this, "takePhoto") );
 
 		// toggle fullscreen button functionality
-		document.getElementById('fullscreenButton').addEventListener('click', JApp.bind( this, "toggleFullscreen" ));
+		document.getElementById('fullscreenButton').addEventListener('click', toggleFullscreen);	// JApp.bind( this, "toggleFullscreen" ));
 
 		// info button functionality
-		document.getElementById('infoButton').addEventListener('click', JApp.bind( this, "toggleInfoVisibility" ));
+		document.getElementById('infoButton').addEventListener('click', toggleInfoVisibility);	// JApp.bind( this, "toggleInfoVisibility" ));
 
 		// back button functionality
 		document.getElementById('backButton').addEventListener('click', showLivePhoto);	// JApp.bind( this, "showLivePhoto" ));
 		document.getElementById('backButton').style.visibility = "hidden";
 
 		// share button
-		document.getElementById('shareButton').addEventListener('click', JApp.bind( this, "share" ));
+		document.getElementById('shareButton').addEventListener('click', share);	// JApp.bind( this, "share" ));
 		document.getElementById('shareButton').style.visibility = "hidden";
 		if(!(navigator.share)) document.getElementById('shareButton').src="./shareButtonUnavailable.png";
 		// if(!(navigator.share)) document.getElementById('shareButton').style.opacity = 0.3;
 
 		// delete button
-		document.getElementById('deleteButton').addEventListener('click', JApp.bind( this, "deleteStoredPhoto" ));
+		document.getElementById('deleteButton').addEventListener('click', deleteStoredPhoto);	// JApp.bind( this, "deleteStoredPhoto" ));
 		document.getElementById('deleteButton').style.visibility = "hidden";
 
 		// hide the thumbnail for the moment
-		document.getElementById('storedPhotoThumbnail').addEventListener('click', JApp.bind( this, "showStoredPhoto" ));
+		document.getElementById('storedPhotoThumbnail').addEventListener('click', showStoredPhoto);	// JApp.bind( this, "showStoredPhoto" ));
 		document.getElementById('storedPhotoThumbnail').style.visibility = "hidden";
 		document.getElementById('storedPhoto').addEventListener('click', JApp.bind( this, "showLivePhoto" ));
 		document.getElementById('storedPhoto').style.visibility = "hidden";
@@ -295,10 +295,46 @@ function onWindowResize() {
 		: console.error('JApp.app not defined');
 }
 
+function takePhoto() {
+	JApp.app
+		? JApp.app.takePhoto()
+		: console.error('JApp.app not defined');
+}
+
+function toggleFullscreen() {
+	JApp.app
+		? JApp.app.toggleFullscreen()
+		: console.error('JApp.app not defined');
+}
+
+function toggleInfoVisibility() {
+	JApp.app
+		? JApp.app.toggleInfoVisibility()
+		: console.error('JApp.app not defined');
+}
+
+function share() {
+	JApp.app
+		? JApp.app.share()
+		: console.error('JApp.app not defined');
+}
+
+function deleteStoredPhoto() {
+	JApp.app
+		? JApp.app.deleteStoredPhoto()
+		: console.error('JApp.app not defined');
+}
+
+function showStoredPhoto() {
+	JApp.app
+		? JApp.app.showingStoredPhoto()
+		: console.error('JApp.app not defined');
+}
+
 function showLivePhoto() {
 	JApp.app
 		? JApp.app.showLivePhoto()
 		: console.error('JApp.app not defined');
 }
 
-export { render, onWindowResize, showLivePhoto, JApp };
+export { JApp, render, onWindowResize, takePhoto, toggleFullscreen, toggleInfoVisibility, share, deleteStoredPhoto, showStoredPhoto, showLivePhoto };

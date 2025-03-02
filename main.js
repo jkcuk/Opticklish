@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
 import { RainbowMaterial } from './rainbowMaterial.js';
-import { render, JApp } from './JApp.js';
+import { JApp, render } from './JApp.js';
 
 
 class Opticklish extends JApp {
@@ -31,7 +31,7 @@ class Opticklish extends JApp {
     /**
      * 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
      */
-    geometryType = 0;   // 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
+    geometryType = 3;   // 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
 
     edgeThickness = 0.005; // radius of the cylinders
 
@@ -219,7 +219,7 @@ class Opticklish extends JApp {
         } );
 
         this.gui.add( this.guiVariables, 'wavenumber', 0, 1 )
-            .name( 'wavenumber' )
+            .name( 'spottiness' )
             .onChange( k => {
                 this.wavenumber = k;
                 this.mesh.material.uniforms.k.value = 5*2*Math.PI*this.wavenumber;
@@ -270,10 +270,6 @@ class Opticklish extends JApp {
     }
 }
 
-let opticklish = new Opticklish();
-
-// function render() {
-//     if( opticklish.render() ) requestAnimationFrame( render );
-// }
+new Opticklish();
 
 requestAnimationFrame( render );
