@@ -327,7 +327,7 @@ function deleteStoredPhoto() {
 
 function showStoredPhoto() {
 	JApp.app
-		? JApp.app.showingStoredPhoto()
+		? JApp.app.showStoredPhoto()
 		: console.error('JApp.app not defined');
 }
 
