@@ -1,14 +1,23 @@
 import * as THREE from 'three';
 
 class RainbowMaterial extends THREE.ShaderMaterial {
-    constructor( noOfSources, k, omegaT ) {
+    /**
+ * Represents a color material.
+ * @constructor
+ * @param {int} colorType - 0: single color, 1: rainbow
+ * @param {int} noOfSources - The number of sources that interfere to create the colour
+ * @param {float} k - The wave number
+ * @param {float} omegaT - The phase
+ */
+constructor( colorType, noOfSources, k, omegaT ) {
         super( {
             side: THREE.DoubleSide,
             uniforms: { 
+                colorType: { value: colorType },
                 sourcePositions: { value: RainbowMaterial.createSourcePositions( noOfSources ) },
                 sourceAmplitudes: { value: RainbowMaterial.createSourceAmplitudes( noOfSources ) },
                 noOfSources: { value: noOfSources },
-                k: { value: k },	// lambda = 0.1
+                k: { value: k },
                 omegaT: { value: omegaT },
             },
             // wireframe: true,
@@ -29,6 +38,7 @@ class RainbowMaterial extends THREE.ShaderMaterial {
 
                 varying vec3 v_position;
 
+                uniform int colorType;
                 uniform vec3 sourcePositions[10];
                 uniform vec2 sourceAmplitudes[10];
                 uniform int noOfSources;
@@ -58,7 +68,7 @@ class RainbowMaterial extends THREE.ShaderMaterial {
                         float kd = k*d - omegaT;
                         float c = cos(kd);
                         float s = sin(kd);
-                        // add to the sum of amplitudes the amplitude due to 
+                        // add to the sum of amplitudes 
                         amplitude += vec2(
                             sourceAmplitudes[i].x*c - sourceAmplitudes[i].y*s,	// real part = r1 r2 - i1 i2
                             sourceAmplitudes[i].x*s + sourceAmplitudes[i].y*c	// imaginary part = r1 i2 + r2 i1
@@ -66,8 +76,12 @@ class RainbowMaterial extends THREE.ShaderMaterial {
                     }
 
                     // plot the phase only
-                    gl_FragColor = vec4(hsv2rgb(vec3(calculateHue(amplitude), 1.0, 1.0)), 1.0);
-                    // gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
+                    if(colorType == 0) {
+                        float c = 0.5 + 0.5*cos(calculatePhase(amplitude));
+                        gl_FragColor = vec4(c, c, c, 1.0);
+                    } else if(colorType == 1) {
+                        gl_FragColor = vec4(hsv2rgb(vec3(calculateHue(amplitude), 1.0, 1.0)), 1.0);
+                    }
                 }
             `
         } );
@@ -79,7 +93,6 @@ class RainbowMaterial extends THREE.ShaderMaterial {
         let sourcePositions = [];
 
         // fill in the elements of all three arrays
-        // noOfSources = 100;	// no of elements
         let i=0;
         let m=0;
         for(; i<noOfSources; i++) {
@@ -98,7 +111,6 @@ class RainbowMaterial extends THREE.ShaderMaterial {
         let sourceAmplitudes = [];	// (complex) amplitudes
 
         // fill in the elements of all three arrays
-        // noOfSources = 100;	// no of elements
         let i=0;
         let m=0;
         for(; i<noOfSources; i++) {
