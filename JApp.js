@@ -67,6 +67,9 @@ class JApp {
 		// handle device orientation
 		// window.addEventListener("deviceorientation", handleOrientation, true);
 		
+		// for some reason, the "JApp.bind( this, "method name" )" method doesn't work properly on my Android phone,
+		// which didn't go back to showing the live image after taking a photo
+
 		// handle window resize
 		window.addEventListener("resize", 
 			onWindowResize,	// JApp.bind( this, "onWindowResize" ), 
