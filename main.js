@@ -175,21 +175,23 @@ class Opticklish extends BasicApp {
         this.omegaT += this.omega*(now - this.lastDrawn);
         this.lastDrawn = now;
 
-        this.renderer.clear();
+        if(!this.showingStoredPhoto) {
+            this.renderer.clear();
 
-        // render three copies at different phases
-        
-        this.material.uniforms.omegaT.value = this.omegaT + this.phaseChangeForward;
-        this.mesh.matrix.copy(this.matrix1);
-        this.renderer.render(this.scene, this.camera);
+            // render three copies at different phases
+            
+            this.material.uniforms.omegaT.value = this.omegaT + this.phaseChangeForward;
+            this.mesh.matrix.copy(this.matrix1);
+            this.renderer.render(this.scene, this.camera);
 
-        this.material.uniforms.omegaT.value = this.omegaT - this.phaseChangeForward;
-        this.mesh.matrix.copy(this.matrix3);
-        this.renderer.render(this.scene, this.camera);
+            this.material.uniforms.omegaT.value = this.omegaT - this.phaseChangeForward;
+            this.mesh.matrix.copy(this.matrix3);
+            this.renderer.render(this.scene, this.camera);
 
-        this.material.uniforms.omegaT.value = this.omegaT;
-        this.mesh.matrix.copy(this.matrix2);
-        this.renderer.render(this.scene, this.camera);
+            this.material.uniforms.omegaT.value = this.omegaT;
+            this.mesh.matrix.copy(this.matrix2);
+            this.renderer.render(this.scene, this.camera);
+        }
     };
 
     // gui
