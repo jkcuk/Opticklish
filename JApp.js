@@ -1,6 +1,8 @@
-class BasicApp {
-	appName = 'Upticklish';
+class JApp {
+	appName = 'JApp';
 	appDescription = 'the premier interactive tool';
+
+	static app;
 
 	// internal variables
 	camera;
@@ -21,7 +23,7 @@ class BasicApp {
 	storedPhotoInfoString;
 
 	// my Canon EOS450D
-	click = new Audio('./assets/click.m4a');
+	static click = new Audio('./assets/click.m4a');
 
 	/**
 	 * Represents a color material.
@@ -41,6 +43,14 @@ class BasicApp {
 		this.createStatus();
 		this.createInfo();
 		this.refreshInfo();
+
+		JApp.app = this;
+	}	
+
+	render() {
+		// if(this.renderer) this.renderer.render( this.scene, this.camera );
+
+		if( !this.showingStoredPhoto ) requestAnimationFrame( render );
 	}
 
 	/**
@@ -58,35 +68,37 @@ class BasicApp {
 		// window.addEventListener("deviceorientation", handleOrientation, true);
 		
 		// handle window resize
-		window.addEventListener("resize", BasicApp.bind( this, "onWindowResize" ), false);
+		window.addEventListener("resize", 
+			onWindowResize,	// JApp.bind( this, "onWindowResize" ), 
+			false);
 
 		// share button functionality
-		document.getElementById('takePhotoButton').addEventListener('click', BasicApp.bind( this, "takePhoto") );
+		document.getElementById('takePhotoButton').addEventListener('click', JApp.bind( this, "takePhoto") );
 
 		// toggle fullscreen button functionality
-		document.getElementById('fullscreenButton').addEventListener('click', BasicApp.bind( this, "toggleFullscreen" ));
+		document.getElementById('fullscreenButton').addEventListener('click', JApp.bind( this, "toggleFullscreen" ));
 
 		// info button functionality
-		document.getElementById('infoButton').addEventListener('click', BasicApp.bind( this, "toggleInfoVisibility" ));
+		document.getElementById('infoButton').addEventListener('click', JApp.bind( this, "toggleInfoVisibility" ));
 
 		// back button functionality
-		document.getElementById('backButton').addEventListener('click', BasicApp.bind( this, "showLivePhoto" ));
+		document.getElementById('backButton').addEventListener('click', showLivePhoto);	// JApp.bind( this, "showLivePhoto" ));
 		document.getElementById('backButton').style.visibility = "hidden";
 
 		// share button
-		document.getElementById('shareButton').addEventListener('click', BasicApp.bind( this, "share" ));
+		document.getElementById('shareButton').addEventListener('click', JApp.bind( this, "share" ));
 		document.getElementById('shareButton').style.visibility = "hidden";
 		if(!(navigator.share)) document.getElementById('shareButton').src="./shareButtonUnavailable.png";
 		// if(!(navigator.share)) document.getElementById('shareButton').style.opacity = 0.3;
 
 		// delete button
-		document.getElementById('deleteButton').addEventListener('click', BasicApp.bind( this, "deleteStoredPhoto" ));
+		document.getElementById('deleteButton').addEventListener('click', JApp.bind( this, "deleteStoredPhoto" ));
 		document.getElementById('deleteButton').style.visibility = "hidden";
 
 		// hide the thumbnail for the moment
-		document.getElementById('storedPhotoThumbnail').addEventListener('click', BasicApp.bind( this, "showStoredPhoto" ));
+		document.getElementById('storedPhotoThumbnail').addEventListener('click', JApp.bind( this, "showStoredPhoto" ));
 		document.getElementById('storedPhotoThumbnail').style.visibility = "hidden";
-		document.getElementById('storedPhoto').addEventListener('click', BasicApp.bind( this, "showLivePhoto" ));
+		document.getElementById('storedPhoto').addEventListener('click', JApp.bind( this, "showLivePhoto" ));
 		document.getElementById('storedPhoto').style.visibility = "hidden";
 		// showingStoredPhoto = false;
 	}
@@ -146,6 +158,8 @@ class BasicApp {
 		this.showingStoredPhoto = false;
 
 		this.postStatus('Showing live image');
+
+		requestAnimationFrame( render );
 	}
 
 	deleteStoredPhoto() {
@@ -158,7 +172,7 @@ class BasicApp {
 
 	takePhoto() {
 		try {
-			this.click.play();
+			JApp.click.play();
 
 			this.storedPhoto = this.renderer.domElement.toDataURL('image/png');
 			this.storedPhotoInfoString = this.getInfoString();
@@ -237,7 +251,7 @@ class BasicApp {
 		if(this.showingStoredPhoto) this.setInfo( this.storedPhotoInfoString );
 		else this.setInfo( this.getInfoString() );
 
-		if(this.info.style.visibility === "visible") setTimeout( BasicApp.bind( this, "refreshInfo") , 100);	// refresh again a while
+		if(this.info.style.visibility === "visible") setTimeout( JApp.bind( this, "refreshInfo") , 100);	// refresh again a while
 	}
 
 	/** 
@@ -267,4 +281,24 @@ class BasicApp {
 
 }
 
-export { BasicApp };
+function render() {
+	JApp.app
+		? JApp.app.render()
+		: console.error('JApp.app not defined');
+
+	if( !JApp.app.showingStoredPhoto ) requestAnimationFrame( render );
+}
+
+function onWindowResize() {
+	JApp.app
+		? JApp.app.onWindowResize()
+		: console.error('JApp.app not defined');
+}
+
+function showLivePhoto() {
+	JApp.app
+		? JApp.app.showLivePhoto()
+		: console.error('JApp.app not defined');
+}
+
+export { render, onWindowResize, showLivePhoto, JApp };

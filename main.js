@@ -3,10 +3,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
 import { RainbowMaterial } from './rainbowMaterial.js';
-import { BasicApp } from './BasicApp.js';
+import { render, JApp } from './JApp.js';
 
 
-class Opticklish extends BasicApp {
+class Opticklish extends JApp {
     // parameters
     omega = 2*2*Math.PI/1000;
     wavenumber = 0;
@@ -72,8 +72,8 @@ class Opticklish extends BasicApp {
         this.camera.position.z = 5;
 
         // Create lights
-        var lightAmb = new THREE.AmbientLight(0x777777);
-        this.scene.add(lightAmb);
+        // var lightAmb = new THREE.AmbientLight(0x777777);
+        // this.scene.add(lightAmb);
 
         // add the object
         this.reDefineMaterial();
@@ -175,7 +175,7 @@ class Opticklish extends BasicApp {
         this.omegaT += this.omega*(now - this.lastDrawn);
         this.lastDrawn = now;
 
-        if(!this.showingStoredPhoto) {
+        // if(!this.showingStoredPhoto) {
             this.renderer.clear();
 
             // render three copies at different phases
@@ -191,7 +191,9 @@ class Opticklish extends BasicApp {
             this.material.uniforms.omegaT.value = this.omegaT;
             this.mesh.matrix.copy(this.matrix2);
             this.renderer.render(this.scene, this.camera);
-        }
+        // }
+
+        return !this.showingStoredPhoto;
     };
 
     // gui
@@ -270,8 +272,8 @@ class Opticklish extends BasicApp {
 
 let opticklish = new Opticklish();
 
-function render() {
-    opticklish.render();
-    requestAnimationFrame( render );
-}
+// function render() {
+//     if( opticklish.render() ) requestAnimationFrame( render );
+// }
+
 requestAnimationFrame( render );
