@@ -2,6 +2,7 @@ class BasicApp {
 	appName = 'Upticklish';
 	appDescription = 'the premier interactive tool';
 
+	// internal variables
 	camera;
 	renderer;
 	gui;
@@ -42,6 +43,12 @@ class BasicApp {
 		this.refreshInfo();
 	}
 
+	/**
+	 * see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+	 * @param {*} toObject - the object to which the method belongs
+	 * @param {*} methodName - the method to call
+	 * @returns a function that calls the method of the object
+	 */
 	static bind(toObject, methodName) {
 		return function(){toObject[methodName]()}
 	}
