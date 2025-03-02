@@ -7,13 +7,14 @@ import { RainbowMaterial } from './rainbowMaterial.js';
 
 // parameters
 var omega = 2*2*Math.PI/1000;
-var color = { r: 1, g: 1, b: 1 };
+var wavenumber = 0;
+// var color = { r: 1, g: 1, b: 1 };
 
 /**
  * rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
  */
 var movementType = 1;   // rotationX: 0, rotationY: 1, rotationZ: 2, translationX: 3, translationY: 4, translationZ: 5, scaling: 6
-var movementSpeed = 1;
+var movementSpeed = .5;
 
 /**
  * faces: 0, edges: 1
@@ -59,14 +60,14 @@ let controls = new OrbitControls( camera, renderer.domElement );
 
 var material;
 function reDefineMaterial() {
-    switch(colorType) {
-        case 0:
-            material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-            break;
-        case 1:
-            material = new RainbowMaterial( 1, 1*2*Math.PI, .1 );
-            break;
-    }
+    // switch(colorType) {
+    //     case 0:
+    //         material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    //         break;
+    //     case 1:
+            material = new RainbowMaterial( colorType, 5, 5*2*Math.PI*wavenumber, 0 );
+    //         break;
+    // }
     // new THREE.MeshLambertMaterial({
     //     color: 0xf0f0f0,
     //     // ambient: 0x121212,
@@ -160,40 +161,17 @@ var render = function () {
 
     renderer.clear();
 
-    let f;
-    switch(colorType) {
-        case 0:
-            f = 0.5 + 0.5*Math.cos(omegaT + phaseChangeForward);
-            material.color.setRGB( color.r*f, color.g*f, color.b*f );
-            break;
-        case 1:
-            material.uniforms.omegaT.value = omegaT + phaseChangeForward;
-            break;
-        }
+    // render three copies at different phases
+    
+    material.uniforms.omegaT.value = omegaT + phaseChangeForward;
     mesh.matrix.copy(matrix1);
     renderer.render(scene, camera);
 
-    switch(colorType) {
-        case 0:
-            f = 0.5 + 0.5*Math.cos(omegaT - phaseChangeForward);
-            material.color.setRGB( color.r*f, color.g*f, color.b*f );
-            break;
-        case 1:
-            material.uniforms.omegaT.value = omegaT - phaseChangeForward;
-            break;
-    }
+    material.uniforms.omegaT.value = omegaT - phaseChangeForward;
     mesh.matrix.copy(matrix3);
     renderer.render(scene, camera);
 
-    switch(colorType) {
-        case 0:
-            f = 0.5 + 0.5*Math.cos(omegaT);
-            material.color.setRGB( color.r*f, color.g*f, color.b*f );
-            break;
-        case 1:
-            material.uniforms.omegaT.value = omegaT;
-            break;
-    }
+    material.uniforms.omegaT.value = omegaT;
     mesh.matrix.copy(matrix2);
     renderer.render(scene, camera);
 
@@ -206,6 +184,7 @@ requestAnimationFrame( render );
 
 const guiVariables = {
 	frequency: omega*1000/2/Math.PI,
+    wavenumber: wavenumber,
 	movementType: movementType,
     movementSpeed: movementSpeed,
     meshType: meshType,   // faces: 0, edges: 1
@@ -220,6 +199,13 @@ gui.add( guiVariables, 'frequency', -4, 4 )
 	.name( 'frequency (Hz)' )
 	.onChange( f => { 
         omega = 2*Math.PI*f/1000; 
+} );
+
+gui.add( guiVariables, 'wavenumber', 0, 1 )
+    .name( 'wavenumber' )
+    .onChange( k => {
+        wavenumber = k;
+        mesh.material.uniforms.k.value = 5*2*Math.PI*wavenumber;
 } );
 
 gui.add( guiVariables, 'movementType', { 'x rotation': 0, 'y rotation': 1, 'z rotation': 2, 'x translation': 3, 'y translation': 4, 'z translation': 5, scaling: 6 } )
