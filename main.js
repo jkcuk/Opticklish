@@ -267,7 +267,7 @@ class Opticklish extends JApp {
                 this.reDefineMesh();
         } );
 
-        this.gui.add( this.guiVariables, 'colorType', { 'single color': 0, 'rainbow': 1 } )
+        this.gui.add( this.guiVariables, 'colorType', { 'grayscale': 0, 'rainbow': 1 } )
             .name( 'colors' )
             .onChange( t => {
                 this.colorType = t;
