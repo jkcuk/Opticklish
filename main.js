@@ -1,4 +1,9 @@
 import * as THREE from 'three';
+import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js';
+// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+// import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+// import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
@@ -8,7 +13,7 @@ import { JApp, render } from './JApp.js';
 
 class Opticklish extends JApp {
     // parameters
-    omega = 2*2*Math.PI/1000;
+    omega = 2*2*Math.PI;
     wavenumber = 0;
     m = 0;
     // var color = { r: 1, g: 1, b: 1 };
@@ -32,7 +37,7 @@ class Opticklish extends JApp {
     /**
      * 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
      */
-    geometryType = 3;   // 0: torusKnot, 1: dodecahedron, 2: sphere, 3: cube
+    geometryType = 0;   // 0: cube, 1: dodecahedron, 2: sphere, 3: torusKnot
 
     edgeThickness = 0.005; // radius of the cylinders
 
@@ -54,7 +59,7 @@ class Opticklish extends JApp {
 	 * @param {string} appDescription - The app's (brief) description
 	 */
 	constructor(  ) {
-        super( 'Opticklish', 'the premier tool for optickle illusions' );
+        super( 'Opticklish', 'the premier interactive tool for this one particular optickle illusion' );
 
         this.createRendererEtc();
 
@@ -106,17 +111,24 @@ class Opticklish extends JApp {
         var geometry;
         switch(this.geometryType) {
             case 0:
-                geometry = new THREE.TorusKnotGeometry( 0.7, 0.2, 200, 16 );
+                geometry = new THREE.BoxGeometry(1, 1, 1);
                 break;
             case 1:
                 geometry = new THREE.DodecahedronGeometry(1);
                 break;
             case 2:
-                geometry = new THREE.SphereGeometry(1, 32, 32);
+                geometry = new THREE.SphereGeometry(0.5, 16, 16);
                 break;
             case 3:
-                geometry = new THREE.BoxGeometry(1, 1, 1);
+                geometry = new THREE.TorusKnotGeometry( 0.4, 0.1, 200, 16 );
                 break;  
+            case 4:
+                geometry = new TeapotGeometry(0.5, 10, true, true, true, true, true);
+                break;
+            case 5:
+                geometry = this.getMorphingFace();
+                break;
+            // for future: https://github.com/mrdoob/three.js/blob/master/examples/webgl_morphtargets_face.html
         }
 
         switch(this.meshType) {
@@ -166,15 +178,13 @@ class Opticklish extends JApp {
 
     // Rendering function
 
-    lastDrawn = Date.now();
+    clock = new THREE.Clock();
     omegaT = 0;
     phaseChangeForward = -0.2*2*Math.PI;
 
     render() {
         // calculate omega*t
-        let now = Date.now();
-        this.omegaT += this.omega*(now - this.lastDrawn);
-        this.lastDrawn = now;
+        this.omegaT += this.omega*this.clock.getDelta();    // (now - this.lastDrawn);
 
         // if(!this.showingStoredPhoto) {
             this.renderer.clear();
@@ -200,7 +210,7 @@ class Opticklish extends JApp {
     // gui
 
     guiVariables = {
-        frequency: this.omega*1000/2/Math.PI,
+        frequency: this.omega/2/Math.PI,
         wavenumber: this.wavenumber,
         m: this.m,
         movementType: this.movementType,
@@ -217,7 +227,7 @@ class Opticklish extends JApp {
         this.gui.add( this.guiVariables, 'frequency', -4, 4 )
             .name( 'frequency (Hz)' )
             .onChange( f => { 
-                this.omega = 2*Math.PI*f/1000; 
+                this.omega = 2*Math.PI*f; 
         } );
 
         this.gui.add( this.guiVariables, 'wavenumber', 0, 1 )
@@ -265,7 +275,14 @@ class Opticklish extends JApp {
                 this.mesh.material = this.material;
         } );
 
-        this.gui.add( this.guiVariables, 'geometryType', { 'torus knot': 0, 'dodecahedron': 1, 'sphere': 2, 'cube': 3 } )
+        this.gui.add( this.guiVariables, 'geometryType', { 
+            'cube': 0, 
+            'dodecahedron': 1, 
+            'sphere': 2, 
+            'torus knot': 3, 
+            'teapot': 4, 
+            // 'face': 5 
+        } )
             .name( 'geometry' )
             .onChange( t => {
                 this.geometryType = t;
@@ -279,6 +296,59 @@ class Opticklish extends JApp {
                 this.reDefineMesh();
         } );
     }
+
+    getInfoString() {
+		return '' +
+            `<center><img src="./assets/logo.png" alt="Logo"></center>\n` +
+			// `<h4>${this.appName}</h4>\n` +
+			`<b>${this.appName}</b> is ${this.appDescription}`
+			;
+	}
+
+    // getMorphingFace() {
+    //     // from https://github.com/mrdoob/three.js/blob/master/examples/webgl_morphtargets_face.html
+    //     const ktx2Loader = new KTX2Loader()
+    //         .setTranscoderPath( 'jsm/libs/basis/' )
+    //         .detectSupport( this.renderer );
+
+    //     new GLTFLoader()
+    //         .setKTX2Loader( ktx2Loader )
+    //         .setMeshoptDecoder( MeshoptDecoder )
+    //         .load( 'https://github.com/mrdoob/three.js/blob/master/examples/models/gltf/facecap.glb', ( gltf ) => {
+
+    //             const faceMesh = gltf.scene.children[ 0 ];
+
+    //             // scene.add( mesh );
+
+    //             mixer = new THREE.AnimationMixer( faceMesh );
+
+    //             mixer.clipAction( gltf.animations[ 0 ] ).play();
+
+    //             // GUI
+
+    //             const head = faceMesh.getObjectByName( 'mesh_2' );
+    //             const influences = head.morphTargetInfluences;
+
+    //             const gui = new GUI();
+    //             gui.close();
+
+    //             for ( const [ key, value ] of Object.entries( head.morphTargetDictionary ) ) {
+
+    //                 gui.add( influences, value, 0, 1, 0.01 )
+    //                     .name( key.replace( 'blendShape1.', '' ) )
+    //                     .listen();
+
+    //             }
+
+    //             return faceMesh.geometry;
+    //         } );
+
+    //     // const environment = new RoomEnvironment();
+    //     // const pmremGenerator = new THREE.PMREMGenerator( this.renderer );
+
+    //     // this.scene.background = new THREE.Color( 0x666666 );
+    //     // this.scene.environment = pmremGenerator.fromScene( environment ).texture;
+    // }
 }
 
 new Opticklish();
