@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { edgesToCylinders } from './util.js';
-import { RainbowMaterial } from './rainbowMaterial.js';
+import { TimeVaryingPatternMaterial } from './timeVaryingPatternMaterial.js';
 import { JApp, render } from './JApp.js';
 
 
@@ -10,6 +10,7 @@ class Opticklish extends JApp {
     // parameters
     omega = 2*2*Math.PI/1000;
     wavenumber = 0;
+    m = 0;
     // var color = { r: 1, g: 1, b: 1 };
 
     /**
@@ -98,7 +99,7 @@ class Opticklish extends JApp {
     // add the scene objects
 
     reDefineMaterial() {
-        this.material = new RainbowMaterial( this.colorType, 5, 5*2*Math.PI*this.wavenumber, 0 );
+        this.material = new TimeVaryingPatternMaterial( this.colorType, 9, 5*2*Math.PI*this.wavenumber, this.m, 0 );
     }
 
     reDefineMesh() {
@@ -201,6 +202,7 @@ class Opticklish extends JApp {
     guiVariables = {
         frequency: this.omega*1000/2/Math.PI,
         wavenumber: this.wavenumber,
+        m: this.m,
         movementType: this.movementType,
         movementSpeed: this.movementSpeed,
         meshType: this.meshType,   // faces: 0, edges: 1
@@ -224,6 +226,15 @@ class Opticklish extends JApp {
                 this.wavenumber = k;
                 this.mesh.material.uniforms.k.value = 5*2*Math.PI*this.wavenumber;
         } );
+
+        this.gui.add( this.guiVariables, 'm', -4, 4, 1 )
+            .name( 'azimuthal index' )
+            .onChange( m => {
+                this.m = m;
+                this.reDefineMaterial();
+                this.mesh.material = this.material;
+        } );
+
 
         this.gui.add( this.guiVariables, 'movementType', { 'x rotation': 0, 'y rotation': 1, 'z rotation': 2, 'x translation': 3, 'y translation': 4, 'z translation': 5, scaling: 6 } )
             .name( 'movement' )

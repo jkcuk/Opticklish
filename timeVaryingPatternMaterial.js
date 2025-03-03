@@ -1,21 +1,22 @@
 import * as THREE from 'three';
 
-class RainbowMaterial extends THREE.ShaderMaterial {
+class TimeVaryingPatternMaterial extends THREE.ShaderMaterial {
     /**
- * Represents a color material.
- * @constructor
- * @param {int} colorType - 0: single color, 1: rainbow
- * @param {int} noOfSources - The number of sources that interfere to create the colour
- * @param {float} k - The wave number
- * @param {float} omegaT - The phase
- */
-constructor( colorType, noOfSources, k, omegaT ) {
+     * Represents a color material.
+     * @constructor
+     * @param {int} colorType - 0: single color, 1: rainbow
+     * @param {int} noOfSources - The number of sources that interfere to create the colour
+     * @param {float} k - The wave number
+     * @param {float} m - The azimuthal index of the source array
+     * @param {float} omegaT - The phase
+     */
+    constructor( colorType, noOfSources, k, m, omegaT ) {
         super( {
             side: THREE.DoubleSide,
             uniforms: { 
                 colorType: { value: colorType },
-                sourcePositions: { value: RainbowMaterial.createSourcePositions( noOfSources ) },
-                sourceAmplitudes: { value: RainbowMaterial.createSourceAmplitudes( noOfSources ) },
+                sourcePositions: { value: TimeVaryingPatternMaterial.createSourcePositions( noOfSources ) },
+                sourceAmplitudes: { value: TimeVaryingPatternMaterial.createSourceAmplitudes( noOfSources, m ) },
                 noOfSources: { value: noOfSources },
                 k: { value: k },
                 omegaT: { value: omegaT },
@@ -106,13 +107,12 @@ constructor( colorType, noOfSources, k, omegaT ) {
         return sourcePositions;
     }
 
-    static createSourceAmplitudes( noOfSources) {
+    static createSourceAmplitudes( noOfSources, m ) {
 
         let sourceAmplitudes = [];	// (complex) amplitudes
 
         // fill in the elements of all three arrays
         let i=0;
-        let m=0;
         for(; i<noOfSources; i++) {
             let phi = 2.0*Math.PI*i/noOfSources;	// azimuthal angle
             sourceAmplitudes.push(new THREE.Vector2(Math.cos(m*phi), Math.sin(m*phi)));
@@ -130,4 +130,4 @@ constructor( colorType, noOfSources, k, omegaT ) {
 
 }
 
-export { RainbowMaterial };
+export { TimeVaryingPatternMaterial };
