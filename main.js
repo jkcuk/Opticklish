@@ -96,13 +96,17 @@ class Opticklish extends JApp {
     
         // Create renderer
         this.renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true, antialias: true });    // preserveDrawingBuffer is so that we can render several times without clearing
-        this.renderer.autoClearColor = false;    
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.autoClearColor = false;    
         this.renderer.autoClear = false; // for rendering several times without clearing
         document.body.appendChild(this.renderer.domElement);
 
         this.effect = new AnaglyphEffect( this.renderer );
         this.effect.setSize(window.innerWidth, window.innerHeight);
+        this.effect.autoClearColor = false;    
+        this.effect.autoClear = false; // for rendering several times without clearing
+
+        this.rendererOrEffect = this.effect;
 
         let controls = new OrbitControls( this.camera, this.renderer.domElement );
     }
@@ -196,21 +200,17 @@ class Opticklish extends JApp {
 
         // render three copies at different phases
         
-        if( !this.anaglyph ) {
-            this.material.uniforms.omegaT.value = this.omegaT + this.phaseChangeForward;
-            this.mesh.matrix.copy(this.matrix1);
-            this.renderer.render(this.scene, this.camera);
+        this.material.uniforms.omegaT.value = this.omegaT + this.phaseChangeForward;
+        this.mesh.matrix.copy(this.matrix1);
+        this.rendererOrEffect.render(this.scene, this.camera);
 
-            this.material.uniforms.omegaT.value = this.omegaT - this.phaseChangeForward;
-            this.mesh.matrix.copy(this.matrix3);
-            this.renderer.render(this.scene, this.camera);
-        }
+        this.material.uniforms.omegaT.value = this.omegaT - this.phaseChangeForward;
+        this.mesh.matrix.copy(this.matrix3);
+        this.rendererOrEffect.render(this.scene, this.camera);
 
         this.material.uniforms.omegaT.value = this.omegaT;
         this.mesh.matrix.copy(this.matrix2);
-        this.anaglyph
-            ?this.effect.render(this.scene, this.camera)
-            :this.renderer.render(this.scene, this.camera);
+        this.rendererOrEffect.render(this.scene, this.camera);
     };
 
     // gui
@@ -225,7 +225,7 @@ class Opticklish extends JApp {
         colorType: this.colorType,  // 1: rainbow, 0: single color
         geometryType: this.geometryType, // 0: torusKnot, 1: dodecahedron
         edgeThickness: this.edgeThickness,
-        anaglyph: this.anaglyph,
+        anaglyph: this.rendererOrEffect == this.effect,
     };
     
     addGUI() {
@@ -305,7 +305,7 @@ class Opticklish extends JApp {
 
         this.gui.add( this.guiVariables, 'anaglyph' )
             .onChange( b => {
-                this.anaglyph = b;
+                this.rendererOrEffect = b?this.effect:this.renderer;
         } );
     }
 

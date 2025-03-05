@@ -8,6 +8,7 @@ class JApp {
 	camera;
 	renderer;
 	effect;
+	rendererOrEffect;
 	gui;
 
 	// the status text area
@@ -49,7 +50,7 @@ class JApp {
 	}	
 
 	render() {
-		// if(this.renderer) this.renderer.render( this.scene, this.camera );
+		// if(this.rendererOrEffect) this.rendererOrEffect.render( this.scene, this.camera );
 
 		// if( !this.showingStoredPhoto ) requestAnimationFrame( render );
 	}
