@@ -7,6 +7,7 @@ class JApp {
 	// internal variables
 	camera;
 	renderer;
+	effect;
 	gui;
 
 	// the status text area
@@ -50,7 +51,7 @@ class JApp {
 	render() {
 		// if(this.renderer) this.renderer.render( this.scene, this.camera );
 
-		if( !this.showingStoredPhoto ) requestAnimationFrame( render );
+		// if( !this.showingStoredPhoto ) requestAnimationFrame( render );
 	}
 
 	/**
@@ -109,6 +110,7 @@ class JApp {
 	onWindowResize() {
 		// in case the screen size has changed
 		if( this.renderer ) this.renderer.setSize(window.innerWidth, window.innerHeight);
+		if( this.effect ) this.effect.setSize(window.innerWidth, window.innerHeight);
 
 		// if the screen orientation changes, width and height swap places, so the aspect ratio changes
 		if( this.camera ) {

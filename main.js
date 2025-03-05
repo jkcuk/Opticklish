@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
 import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js';
 // import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
@@ -40,6 +41,8 @@ class Opticklish extends JApp {
     geometryType = 0;   // 0: cube, 1: dodecahedron, 2: sphere, 3: torusKnot
 
     edgeThickness = 0.005; // radius of the cylinders
+
+    anaglyph = false;
 
     // internal variables
     material;
@@ -97,6 +100,9 @@ class Opticklish extends JApp {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.autoClear = false; // for rendering several times without clearing
         document.body.appendChild(this.renderer.domElement);
+
+        this.effect = new AnaglyphEffect( this.renderer );
+        this.effect.setSize(window.innerWidth, window.innerHeight);
 
         let controls = new OrbitControls( this.camera, this.renderer.domElement );
     }
@@ -186,11 +192,11 @@ class Opticklish extends JApp {
         // calculate omega*t
         this.omegaT += this.omega*this.clock.getDelta();    // (now - this.lastDrawn);
 
-        // if(!this.showingStoredPhoto) {
-            this.renderer.clear();
+        this.renderer.clear();
 
-            // render three copies at different phases
-            
+        // render three copies at different phases
+        
+        if( !this.anaglyph ) {
             this.material.uniforms.omegaT.value = this.omegaT + this.phaseChangeForward;
             this.mesh.matrix.copy(this.matrix1);
             this.renderer.render(this.scene, this.camera);
@@ -198,13 +204,13 @@ class Opticklish extends JApp {
             this.material.uniforms.omegaT.value = this.omegaT - this.phaseChangeForward;
             this.mesh.matrix.copy(this.matrix3);
             this.renderer.render(this.scene, this.camera);
+        }
 
-            this.material.uniforms.omegaT.value = this.omegaT;
-            this.mesh.matrix.copy(this.matrix2);
-            this.renderer.render(this.scene, this.camera);
-        // }
-
-        return !this.showingStoredPhoto;
+        this.material.uniforms.omegaT.value = this.omegaT;
+        this.mesh.matrix.copy(this.matrix2);
+        this.anaglyph
+            ?this.effect.render(this.scene, this.camera)
+            :this.renderer.render(this.scene, this.camera);
     };
 
     // gui
@@ -219,6 +225,7 @@ class Opticklish extends JApp {
         colorType: this.colorType,  // 1: rainbow, 0: single color
         geometryType: this.geometryType, // 0: torusKnot, 1: dodecahedron
         edgeThickness: this.edgeThickness,
+        anaglyph: this.anaglyph,
     };
     
     addGUI() {
@@ -294,6 +301,11 @@ class Opticklish extends JApp {
             .onChange( t => {
                 this.edgeThickness = t;
                 this.reDefineMesh();
+        } );
+
+        this.gui.add( this.guiVariables, 'anaglyph' )
+            .onChange( b => {
+                this.anaglyph = b;
         } );
     }
 
