@@ -7,8 +7,8 @@ class JApp {
 	// internal variables
 	camera;
 	renderer;
-	effect;
-	rendererOrEffect;
+	effect;	// allows effects such as displaying an anaglyph image -- see https://github.com/mrdoob/three.js/blob/master/examples/webgl_effects_anaglyph.html
+	rendererOrEffect;	// either renderer or effect:  if renderer then rendered image is "normal", otherwise it has the effect applied
 	gui;
 
 	// the status text area
