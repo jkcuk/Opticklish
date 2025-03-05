@@ -223,7 +223,7 @@ class Opticklish extends JApp {
         colorType: this.colorType,  // 1: rainbow, 0: single color
         geometryType: this.geometryType, // 0: torusKnot, 1: dodecahedron
         edgeThickness: this.edgeThickness,
-        anaglyph: this.rendererOrEffect == this.effect,
+        anaglyph: false,    // this.rendererOrEffect == this.effect,
     };
     
     addGUI() {
