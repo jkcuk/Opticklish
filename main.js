@@ -42,8 +42,6 @@ class Opticklish extends JApp {
 
     edgeThickness = 0.005; // radius of the cylinders
 
-    anaglyph = false;
-
     // internal variables
     material;
     mesh;
@@ -106,7 +104,7 @@ class Opticklish extends JApp {
         this.effect.autoClearColor = false;    
         this.effect.autoClear = false; // for rendering several times without clearing
 
-        this.rendererOrEffect = this.effect;
+        this.rendererOrEffect = this.renderer;
 
         let controls = new OrbitControls( this.camera, this.renderer.domElement );
     }
